@@ -1,1 +1,3 @@
-# pyzkui
+# PyZkUI
+
+A Python Zookeeper UI
