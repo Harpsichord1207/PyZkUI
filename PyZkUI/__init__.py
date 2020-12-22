@@ -1,4 +1,5 @@
 import argparse
+import waitress
 
 from PyZkUI.run import app
 
@@ -9,4 +10,11 @@ def main():
     parser.add_argument('--port', help='Port, default is 8088', default=8088, type=int)
     parser.add_argument('--debug', help='Debug, default is False', default=False, type=bool)
     args = parser.parse_args()
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    if args.debug:
+        app.run(host=args.host, port=args.port, debug=True)
+    else:
+        waitress.serve(app, host=args.host, port=args.port, threads=1)
+
+
+if __name__ == '__main__':
+    main()

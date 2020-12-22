@@ -1,10 +1,10 @@
 import os
 
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, request, jsonify
 
 
 app = Flask(__name__)
-print(app.root_path)
+_history = []
 
 
 @app.route('/')
@@ -19,3 +19,16 @@ def favicon():
         'favicon.ico', mimetype='image/vnd.microsoft.icon'
     )
 
+
+@app.route('/zk')
+def zk():
+    host = request.args.get('h')
+    if host is None:
+        return "Error"
+    _history.append(host)
+    return "Ok"
+
+
+@app.route('/his')
+def history():
+    return jsonify(_history)

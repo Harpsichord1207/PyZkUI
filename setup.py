@@ -17,7 +17,8 @@ setup_args = {
     'keywords': 'Flask Zookeeper UI',
     'platforms': 'any',
     'package_data': {'': ['*', 'static/*', 'templates/*']},
-    'entry_points': {'console_scripts': ['PyZkServer=PyZkUI:main']}
+    'entry_points': {'console_scripts': ['PyZkServer=PyZkUI:main']},
+    'zip_safe': False
 }
 
 setup(**setup_args)
