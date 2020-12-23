@@ -1,7 +1,7 @@
 import argparse
 import waitress
 
-from PyZkUI.run import app
+from PyZkUI.views import app
 
 
 def main():
