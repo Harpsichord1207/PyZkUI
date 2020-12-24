@@ -26,7 +26,7 @@ def zk():
     if host is None:
         return "Error"
     _history.append(host)
-    return render_template('tree.html')
+    return render_template('tree.html', host=host)
 
 
 @app.route('/his')
@@ -36,11 +36,6 @@ def history():
 
 @app.route('/tree')
 def tree():
-    data = [{"text": "Inbox", "icon": "fa fa-inbox", "nodes": [{"text": "Office", "icon": "fa fa-inbox",
-                                                                "nodes": [{"icon": "fa fa-inbox", "text": "Customers"},
-                                                                          {"icon": "fa fa-inbox",
-                                                                           "text": "Co-Workers"}]},
-                                                               {"icon": "fa fa-inbox", "text": "Others"}]},
-            {"icon": "fa fa-archive", "text": "Drafts"}, {"icon": "fa fa-calendar", "text": "Calendar"},
-            {"icon": "fa fa-address-book", "text": "Contacts"}, {"icon": "fa fa-trash", "text": "Deleted Items"}]
-    return jsonify(data)
+    from PyZkUI.utils import get_zk_nodes
+    host = request.args.get('h')
+    return jsonify(get_zk_nodes(host))

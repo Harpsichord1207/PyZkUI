@@ -10,7 +10,7 @@ setup_args = {
     'license': 'MPL 2.0',
     'packages': find_packages(),
     'url': 'https://github.com/Harpsichord1207/PyZkUI',
-    'install_requires': ['flask', 'waitress'],
+    'install_requires': ['flask', 'waitress', 'kazoo'],
     'classifiers': [
         'Programming Language :: Python :: 3.8',
     ],

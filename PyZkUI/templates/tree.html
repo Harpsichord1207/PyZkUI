@@ -9,6 +9,9 @@
 </head>
 <body>
     <div class="container">
+        <h3>ZNodes under root path</h3>
+        <hr>
+        <h5>host: <span id="host">{{ host }}<span></h5>
         <div class="content">
             <div id="tree"></div>
         </div>
@@ -20,7 +23,7 @@
 <script>
 function getTree() {
     $.ajax({
-        url: "/tree",
+        url: "/tree?h="+$("#host").text(),
         dataType: "json"
     }).done(function(treeData){
         $('#tree').bstreeview({data: JSON.stringify(treeData)});
