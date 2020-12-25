@@ -1,6 +1,6 @@
 # PyZkUI
 
-A Zookeeper UI tool, base on Python/Flask.
+A Zookeeper UI tool, based on Python/Flask.
 
 
 ### Installation

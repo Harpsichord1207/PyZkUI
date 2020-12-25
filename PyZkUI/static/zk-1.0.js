@@ -8,8 +8,9 @@ function loadHistory() {
             ul = ul + '<a href="/zk?h=' + h + '" class="list-group-item list-group-item-action">' + h + '</a>';
         }
         if (ul.length > 0) {
+            $("#history").html("");
             let his = '<h4>History</h4><div class="list-group">' + ul + '</div>'
-            $(".container").append(his)
+            $("#history").append(his)
         }
     });
 }

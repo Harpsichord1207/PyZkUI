@@ -12,8 +12,12 @@
         <h3>ZNodes under root path</h3>
         <hr>
         <h5>host: <i><span id="host">{{ host }}</span></i></h5>
+
         <div class="content">
-            <div id="tree">Loading...</div>
+            <div class="row">
+                <div class="col" id="tree" style="border: 1px solid">Node list, loading...</div>
+                <div class="col" id="nodeData" style="border: 1px solid">Node data...</div>
+            </div>
         </div>
     </div>
 </body>
@@ -24,6 +28,25 @@
 <script>
 $(document).ready(function(){
     getTree();
+    $("#tree").on("click", ".list-group-item", function(){
+        $.ajax({
+            url: "/node?h="+$("#host").text()+"&p=" + $(this).text()
+        }).done(function(nodeData){
+            let html = "<p>data: " + nodeData.data + "</p>"
+            html += "<p>czxid: " + nodeData.czxid + "</p>"
+            html += "<p>mzxid: " + nodeData.mzxid + "</p>"
+            html += "<p>ctime: " + nodeData.ctime + "</p>"
+            html += "<p>mtime: " + nodeData.mtime + "</p>"
+            html += "<p>version: " + nodeData.version + "</p>"
+            html += "<p>cversion: " + nodeData.cversion + "</p>"
+            html += "<p>aversion: " + nodeData.aversion + "</p>"
+            html += "<p>ephemeralOwner: " + nodeData.ephemeralOwner + "</p>"
+            html += "<p>dataLength: " + nodeData.dataLength + "</p>"
+            html += "<p>numChildren: " + nodeData.numChildren + "</p>"
+            html += "<p>pzxid: " + nodeData.pzxid + "</p>"
+            $("#nodeData").html(html)
+        });
+    });
 });
 </script>
 </html>

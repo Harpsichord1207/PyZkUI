@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
-
+from PyZkUI.utils import get_zk_node, get_zk_nodes
 
 app = Flask(__name__)
 _history = []
@@ -36,10 +36,19 @@ def history():
 
 @app.route('/tree')
 def tree():
-    from PyZkUI.utils import get_zk_nodes
     host = request.args.get('h')
     data = get_zk_nodes(host)
     if data is None:
         return jsonify({'status': 'failed', 'message': 'Connection Failed.'})
     else:
         return jsonify({'status': 'success', 'data': data})
+
+
+@app.route('/node')
+def node():
+    host = request.args.get('h')
+    path = request.args.get('p')
+    if host and path:
+        return jsonify(get_zk_node(host, path=path))
+    else:
+        return jsonify({'status': 'failed', 'message': 'Get node info failed.'})

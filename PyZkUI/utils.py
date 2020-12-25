@@ -21,10 +21,35 @@ class HostHistory:
         ...
 
 
+def get_zk_node(host, port=2181, path='/'):
+    zk = KazooClient(hosts='{}:{}'.format(host, port))
+    try:
+        zk.start(timeout=5)
+    except KazooTimeoutError:
+        logger.error('Connection Failed: {}:{}'.format(host, port))
+        return
+    data, stat = zk.get(path)
+    node = {
+        'data': str(data)[1:],
+        'czxid': stat.czxid,
+        'mzxid': stat.mzxid,
+        'ctime': stat.ctime,
+        'mtime': stat.mtime,
+        'version': stat.version,
+        'cversion': stat.cversion,
+        'aversion': stat.aversion,
+        'ephemeralOwner': stat.ephemeralOwner,
+        'dataLength': stat.dataLength,
+        'numChildren': stat.numChildren,
+        'pzxid': stat.pzxid
+    }
+    return node
+
+
 def get_zk_nodes(host, port=2181):
     zk = KazooClient(hosts='{}:{}'.format(host, port))
     try:
-        zk.start(timeout=10)
+        zk.start(timeout=5)
     except KazooTimeoutError:
         logger.error('Connection Failed: {}:{}'.format(host, port))
         return
@@ -48,7 +73,14 @@ def get_zk_nodes(host, port=2181):
         else:
             _res['icon'] = 'fa fa-file-code-o'
         return _res
+
     _s = time.time()
     data = _recursive('/')['nodes']
     logger.critical('using {:.2f}s'.format(time.time()-_s))
     return data
+
+
+if __name__ == '__main__':
+    zk = KazooClient(hosts='{}:{}'.format('ec2-52-82-108-235.cn-northwest-1.compute.amazonaws.com.cn', 2181))
+    zk.start()
+    get_zk_node(zk, '/druid/coordinator/_COORDINATOR/_c_1f0aef45-195a-43e6-bf1e-aa031d449f00-latch-0000000042')
