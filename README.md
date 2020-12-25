@@ -1,11 +1,11 @@
 # PyZkUI
 
-A Python Zookeeper UI
+A Zookeeper UI tool, base on Python/Flask.
 
 
 ### Installation
 
-- `pip install git+https://github.com/Harpsichord1207/PyZkUI.git`
+- `pip install pyzkui`
 
 
 ### Run

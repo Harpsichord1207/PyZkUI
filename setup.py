@@ -1,11 +1,15 @@
+import pathlib
 from setuptools import setup, find_packages
+
+read_me = pathlib.Path(__file__).parent.joinpath('README.md').read_text()
 
 setup_args = {
     'name': 'PyZkUI',
-    'version': '1.0.0',
+    'version': '1.0.2',
     'description': 'A Python Zookeeper UI.',
-    'long_description': 'A Zookeeper UI tool, base on Python/Flask.',
-    'author': 'Derek Liu',
+    'long_description': read_me,
+    'long_description_content_type': 'text/markdown',
+    'author': 'Harpsichord',
     'author_email': 'tliu1217@163.com',
     'license': 'MPL 2.0',
     'packages': find_packages(),
