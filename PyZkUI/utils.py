@@ -2,6 +2,8 @@ import logging
 import time
 
 from kazoo.client import KazooClient
+from kazoo.handlers.threading import KazooTimeoutError
+
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.INFO)
@@ -21,7 +23,11 @@ class HostHistory:
 
 def get_zk_nodes(host, port=2181):
     zk = KazooClient(hosts='{}:{}'.format(host, port))
-    zk.start()
+    try:
+        zk.start(timeout=10)
+    except KazooTimeoutError:
+        logger.error('Connection Failed: {}:{}'.format(host, port))
+        return
 
     def _recursive(_path):
         logger.info(_path)

@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, send_from_directory, request, jsonify
+from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
 
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ def favicon():
 def zk():
     host = request.args.get('h')
     if host is None:
-        return "Error"
+        return redirect('/')
     _history.append(host)
     return render_template('tree.html', host=host)
 
@@ -38,4 +38,8 @@ def history():
 def tree():
     from PyZkUI.utils import get_zk_nodes
     host = request.args.get('h')
-    return jsonify(get_zk_nodes(host))
+    data = get_zk_nodes(host)
+    if data is None:
+        return jsonify({'status': 'failed', 'message': 'Connection Failed.'})
+    else:
+        return jsonify({'status': 'success', 'data': data})

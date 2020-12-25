@@ -26,7 +26,11 @@ function getTree() {
         url: "/tree?h="+$("#host").text(),
         dataType: "json"
     }).done(function(treeData){
-        $('#tree').text("");
-        $('#tree').bstreeview({data: JSON.stringify(treeData)});
+        if (treeData.status == 'success') {
+            $('#tree').text("");
+            $('#tree').bstreeview({data: JSON.stringify(treeData.data)});
+        } else {
+            $('#tree').text(treeData.message);
+        }
     })
 }
