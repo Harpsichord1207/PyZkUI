@@ -78,9 +78,3 @@ def get_zk_nodes(host, port=2181):
     data = _recursive('/')['nodes']
     logger.critical('using {:.2f}s'.format(time.time()-_s))
     return data
-
-
-if __name__ == '__main__':
-    zk = KazooClient(hosts='{}:{}'.format('ec2-52-82-108-235.cn-northwest-1.compute.amazonaws.com.cn', 2181))
-    zk.start()
-    get_zk_node(zk, '/druid/coordinator/_COORDINATOR/_c_1f0aef45-195a-43e6-bf1e-aa031d449f00-latch-0000000042')
