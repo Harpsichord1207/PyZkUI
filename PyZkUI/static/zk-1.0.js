@@ -14,10 +14,19 @@ function loadHistory() {
     });
 }
 
-$(document).ready(function(){
-    console.log("doc ready!");
-    loadHistory();
+function btkClick() {
     $(".btn").click(function(){
         $(location).attr("href", "zk?h="+$(".form-control").val());
     });
-});
+}
+
+
+function getTree() {
+    $.ajax({
+        url: "/tree?h="+$("#host").text(),
+        dataType: "json"
+    }).done(function(treeData){
+        $('#tree').text("");
+        $('#tree').bstreeview({data: JSON.stringify(treeData)});
+    })
+}

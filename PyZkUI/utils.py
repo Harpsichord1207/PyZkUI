@@ -1,6 +1,10 @@
+import logging
 import time
 
 from kazoo.client import KazooClient
+
+logger = logging.getLogger('waitress')
+logger.setLevel(logging.INFO)
 
 
 class HostHistory:
@@ -20,7 +24,7 @@ def get_zk_nodes(host, port=2181):
     zk.start()
 
     def _recursive(_path):
-        print(_path)
+        logger.info(_path)
         _children = zk.get_children(_path)
         if _path != '/':
             _children_full_path = [(_path + '/' + _c) for _c in _children]
@@ -38,8 +42,7 @@ def get_zk_nodes(host, port=2181):
         else:
             _res['icon'] = 'fa fa-file-code-o'
         return _res
-    import time
-    s = time.time()
+    _s = time.time()
     data = _recursive('/')['nodes']
-    print(time.time() -s )
+    logger.critical('using {:.2f}s'.format(time.time()-_s))
     return data
