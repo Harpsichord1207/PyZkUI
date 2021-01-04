@@ -50,7 +50,7 @@ def get_zk_node(host, path='/'):
         return
     data, stat = zk.get(path)
     node = {
-        'data': str(data)[1:],
+        'data': str(data)[1:].strip("'"),
         'czxid': stat.czxid,
         'mzxid': stat.mzxid,
         'ctime': stat.ctime,
@@ -63,8 +63,8 @@ def get_zk_node(host, path='/'):
         'numChildren': stat.numChildren,
         'pzxid': stat.pzxid
     }
-    zk.stop()
-    return node
+    children = zk.get_children(path)
+    return node, children
 
 
 def get_zk_nodes(host):

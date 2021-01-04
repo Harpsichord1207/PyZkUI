@@ -12,15 +12,18 @@
         <hr>
         <h5>host: <i><span id="host">{{ host }}</span></i></h5>
         <hr>
-        <div class="content">
-            <div class="row">
-                <div class="col-4" style="border: 1px solid;">
-                    <div>/Zookeeper</div>
-                    <div style="padding-left: 1em">/Zookeeper/Quota</div>
-                    <div>/Druid</div>
-                </div>
-                <div class="col-8" id="nodeData" style="border: 1px solid;overflow-x: scroll;">Node data...</div>
+        <div class="row">
+            <div class="col-4" style="border: 1px solid;" id="nodesTree">
+<!--                <div>-->
+<!--                    <a data-toggle="collapse" href="#TestCollapse" role="button">/Zookeeper</a>-->
+<!--                </div>-->
+<!--                <div id="TestCollapse" class="collapse" style="padding-left: 1.5em">-->
+<!--                    <a>/Zookeeper/Quota</a>-->
+<!--                </div>-->
+
+<!--                <div>/Druid</div>-->
             </div>
+            <div class="col-8" id="nodeData" style="border: 1px solid;overflow-x: scroll;">Node data...</div>
         </div>
 
     </div>
@@ -29,24 +32,35 @@
 <script src="/static/bootstrap-4.5.3.bundle.min.js"></script>
 <!--<script src="/static/zk-1.0.js"></script>-->
 <script>
-<!--$(document).ready(function(){-->
-<!--    getTree();-->
-<!--    $("#tree").on("click", ".list-group-item", function(){-->
-<!--        $.ajax({-->
-<!--            url: "/node?h="+$("#host").text()+"&p=" + $(this).text()-->
-<!--        }).done(function(nodeData){-->
-<!--            let html = "";-->
-<!--            $.each(nodeData, function(k, v){-->
-<!--                let row = '<tr><th scope="row">' + k + '</th><td>' + v + '</td></tr>'-->
-<!--                console.log(row);-->
-<!--                html += row-->
-<!--            });-->
 
-<!--            html = '<table class="table"><thead><tr><th scope="col">Name</th><th scope="col">Value</th></tr></thead> <tbody>' + html + '</tbody></table>'-->
+function addCollapse(fullPath){
+    let targetDom = $("#"+ $.escapeSelector(fullPath));
+    targetDom.children("a").attr("data-toggle", "collapse");
+    targetDom.children("a").attr("href", "#TestCollapse");
+    let dom = '<div id="TestCollapse" class="collapse" style="padding-left: 1.5em">';
+    dom += '<a>/Zookeeper/Quota</a></div>';
+    targetDom.after(dom);
+};
 
-<!--            $("#nodeData").html(html)-->
-<!--        });-->
-<!--    });-->
-<!--});-->
+
+function generateNodeHTML(nodePath, parentPath){
+    let fullPath = parentPath + '/' + nodePath;
+    let fullPathClean = ('/', '_');
+    let html = "";
+    html += '<div onclick="addCollapse(\'' + fullPath + '\')" id="' + fullPath + '">';
+    html += '<a role="button">' + fullPath + '</a></div>';
+    return html;
+};
+
+$(document).ready(function(){
+   $.ajax({
+       url: "/node",
+       data: {h: $("#host").text(), p: "/"}
+   }).done(function(data){
+       let html = "";
+       $.each(data[1], function(k, v){html+=generateNodeHTML(v, "/")});
+       $("#nodesTree").html(html);
+   });
+});
 </script>
 </html>
