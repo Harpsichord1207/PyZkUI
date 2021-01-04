@@ -1,3 +1,4 @@
+import datetime
 import logging
 import time
 
@@ -11,14 +12,33 @@ logger.setLevel(logging.INFO)
 
 class HostHistory:
 
-    def __init__(self, lmt=5):
-        self._data = {}
+    data = []
 
-    def accept(self, host):
-        self._data[host] = time.time()
+    @classmethod
+    def add(cls, host):
+        _id = len(cls.data) + 1
+        host_obj = {
+            'time': str(datetime.datetime.now())[:22],
+            'host': host
+        }
+        cls.data.append(host_obj)
+        return {**host_obj, 'id': _id}
 
-    def export(self):
-        ...
+    @classmethod
+    def export(cls):
+        return [{**ele, 'id': i+1} for i, ele in enumerate(cls.data)]
+
+
+def check_zk_host(host, timeout=1):
+    zk = KazooClient(host)
+    try:
+        zk.start(timeout=timeout)
+        logger.info('Connect to {}'.format(host))
+        zk.stop()
+    except KazooTimeoutError:
+        logger.critical('Failed to connect {}'.format(host))
+        return False
+    return True
 
 
 def get_zk_node(host, port=2181, path='/'):
@@ -43,6 +63,7 @@ def get_zk_node(host, port=2181, path='/'):
         'numChildren': stat.numChildren,
         'pzxid': stat.pzxid
     }
+    zk.stop()
     return node
 
 
@@ -77,4 +98,5 @@ def get_zk_nodes(host, port=2181):
     _s = time.time()
     data = _recursive('/')['nodes']
     logger.critical('using {:.2f}s'.format(time.time()-_s))
+    zk.stop()
     return data
