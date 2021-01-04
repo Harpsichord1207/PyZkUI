@@ -37,6 +37,10 @@
 let addBtn = '<button id="addBtn" type="button" class="btn btn-outline-info btn-sm" style="margin-left: 5px" data-toggle="modal" data-target="#addHostModal">+</button>'
 let loadSpin = '<div id="loadSpin" class="spinner-border spinner-border-sm text-secondary" role="status"><span class="sr-only">Loading...</span></div>'
 
+function openNodePage(hostId){
+    window.location.href = "/zk?id="+hostId;
+}
+
 function showAlert(message){
     let alert = '<div class="alert alert-warning alert-dismissible fade show" role="alert">';
     alert += message;
@@ -47,8 +51,8 @@ function showAlert(message){
 
 function generateRow(hostRow){
     let id = hostRow.id;
-    let gBtn = '<button id="go_' + id + '" type="button" class="btn btn-outline-success btn-sm">√</button>';
-    let dBtn = '<button id="delete_' + id + '" type="button" class="btn btn-outline-danger btn-sm" onclick="deleteHost(' + id + ')">-</button>';
+    let gBtn = '<button type="button" class="btn btn-outline-success btn-sm" onclick="openNodePage(' + id + ')">√</button>';
+    let dBtn = '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteHost(' + id + ')">-</button>';
     let row = '<tr><th scope="row">' + id + '</th><td>' + hostRow.host + '</td>';
     row += '<td>' + hostRow.time + '</td><td>';
     row += gBtn;

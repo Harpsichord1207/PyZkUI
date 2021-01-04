@@ -4,7 +4,6 @@ from flask import Flask, render_template, send_from_directory, request, jsonify,
 from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host, HostHistory
 
 app = Flask(__name__)
-_history = []
 
 
 @app.route('/')
@@ -48,16 +47,10 @@ def delete_host():
 
 @app.route('/zk')
 def zk():
-    host = request.args.get('h')
-    if host is None:
-        return redirect('/')
-    _history.append(host)
-    return render_template('tree.html', host=host)
-
-
-@app.route('/his')
-def history():
-    return jsonify(_history)
+    host_id = request.args.get('id')
+    if host_id is None:
+        return render_template('tree.html', host='Null')
+    return render_template('tree.html', host=HostHistory.data[int(host_id)-1]['host'])
 
 
 @app.route('/tree')

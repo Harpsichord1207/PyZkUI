@@ -36,17 +36,17 @@ def check_zk_host(host, timeout=1):
         logger.info('Connect to {}'.format(host))
         zk.stop()
     except KazooTimeoutError:
-        logger.critical('Failed to connect {}'.format(host))
+        logger.error('Failed to connect {}'.format(host))
         return False
     return True
 
 
-def get_zk_node(host, port=2181, path='/'):
-    zk = KazooClient(hosts='{}:{}'.format(host, port))
+def get_zk_node(host, path='/'):
+    zk = KazooClient(hosts=host)
     try:
         zk.start(timeout=5)
     except KazooTimeoutError:
-        logger.error('Connection Failed: {}:{}'.format(host, port))
+        logger.error('Failed to connect {}'.format(host))
         return
     data, stat = zk.get(path)
     node = {
@@ -67,12 +67,12 @@ def get_zk_node(host, port=2181, path='/'):
     return node
 
 
-def get_zk_nodes(host, port=2181):
-    zk = KazooClient(hosts='{}:{}'.format(host, port))
+def get_zk_nodes(host):
+    zk = KazooClient(hosts=host)
     try:
         zk.start(timeout=5)
     except KazooTimeoutError:
-        logger.error('Connection Failed: {}:{}'.format(host, port))
+        logger.error('Failed to connect {}'.format(host))
         return
 
     def _recursive(_path):
