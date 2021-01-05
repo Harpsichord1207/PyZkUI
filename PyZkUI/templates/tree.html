@@ -10,57 +10,17 @@
     <div class="container">
         {% include '_nav_1.html' %}
         <hr>
-        <h5>host: <i><span id="host">{{ host }}</span></i></h5>
+        <h5>Host: <i><span id="host">{{ host }}</span></i></h5>
+        <h5>Path: <i><span id="path"></span></i></h5>
         <hr>
         <div class="row">
-            <div class="col-4" style="border: 1px solid;" id="nodesTree">
-<!--                <div>-->
-<!--                    <a data-toggle="collapse" href="#TestCollapse" role="button">/Zookeeper</a>-->
-<!--                </div>-->
-<!--                <div id="TestCollapse" class="collapse" style="padding-left: 1.5em">-->
-<!--                    <a>/Zookeeper/Quota</a>-->
-<!--                </div>-->
-
-<!--                <div>/Druid</div>-->
-            </div>
-            <div class="col-8" id="nodeData" style="border: 1px solid;overflow-x: scroll;">Node data...</div>
+            <div class="col-4" id="nodeList"></div>
+            <div class="col-8" id="nodeData" style="border: 1px solid">Node data...</div>
         </div>
 
     </div>
 </body>
 <script src="/static/jquery-3.5.1.min.js"></script>
 <script src="/static/bootstrap-4.5.3.bundle.min.js"></script>
-<!--<script src="/static/zk-1.0.js"></script>-->
-<script>
-
-function addCollapse(fullPath){
-    let targetDom = $("#"+ $.escapeSelector(fullPath));
-    targetDom.children("a").attr("data-toggle", "collapse");
-    targetDom.children("a").attr("href", "#TestCollapse");
-    let dom = '<div id="TestCollapse" class="collapse" style="padding-left: 1.5em">';
-    dom += '<a>/Zookeeper/Quota</a></div>';
-    targetDom.after(dom);
-};
-
-
-function generateNodeHTML(nodePath, parentPath){
-    let fullPath = parentPath + '/' + nodePath;
-    let fullPathClean = ('/', '_');
-    let html = "";
-    html += '<div onclick="addCollapse(\'' + fullPath + '\')" id="' + fullPath + '">';
-    html += '<a role="button">' + fullPath + '</a></div>';
-    return html;
-};
-
-$(document).ready(function(){
-   $.ajax({
-       url: "/node",
-       data: {h: $("#host").text(), p: "/"}
-   }).done(function(data){
-       let html = "";
-       $.each(data[1], function(k, v){html+=generateNodeHTML(v, "/")});
-       $("#nodesTree").html(html);
-   });
-});
-</script>
+<script src="/static/tree.js"></script>
 </html>

@@ -64,6 +64,10 @@ def get_zk_node(host, path='/'):
         'pzxid': stat.pzxid
     }
     children = zk.get_children(path)
+    if path == '/':
+        children = ['/' + c for c in children]
+    else:
+        children = [(path + '/' + c) for c in children]
     return node, children
 
 
