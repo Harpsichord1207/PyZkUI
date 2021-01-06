@@ -10,7 +10,7 @@ logger = logging.getLogger('waitress')
 logger.setLevel(logging.INFO)
 
 
-class HostHistory:
+class HostList:
 
     data = []
 

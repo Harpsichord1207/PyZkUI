@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
-from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host, HostHistory
+from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host, HostList
 
 app = Flask(__name__)
 
@@ -24,13 +24,13 @@ def add_host():
     host = str(request.args.get('host')).strip().lower()
     if not check_zk_host(host):
         return jsonify({'status': 'failed'})
-    data = HostHistory.add(host)
+    data = HostList.add(host)
     return jsonify(**data, **{'status': 'success'})
 
 
 @app.route('/load_hosts')
 def load_hosts():
-    return jsonify(HostHistory.export())
+    return jsonify(HostList.export())
 
 
 @app.route('/delete_host')
@@ -38,7 +38,7 @@ def delete_host():
     host_id = request.args.get('id')
     if host_id is not None:
         try:
-            HostHistory.data.pop(int(host_id)-1)
+            HostList.data.pop(int(host_id)-1)
             return jsonify({'status': 'success'})
         except IndexError:
             pass
@@ -50,7 +50,7 @@ def zk():
     host_id = request.args.get('id')
     if host_id is None:
         return render_template('tree.html', host='Null')
-    return render_template('tree.html', host=HostHistory.data[int(host_id)-1]['host'])
+    return render_template('tree.html', host=HostList.data[int(host_id)-1]['host'])
 
 
 @app.route('/tree')
@@ -68,6 +68,7 @@ def node():
     host = request.args.get('h')
     path = request.args.get('p')
     if host and path:
-        return jsonify(get_zk_node(host, path=path))
-    else:
-        return jsonify({'status': 'failed', 'message': 'Get node info failed.'})
+        data = get_zk_node(host, path=path)
+        if data is not None:
+            return jsonify(data)
+    return jsonify({'status': 'failed', 'message': 'Get node info failed.'})
