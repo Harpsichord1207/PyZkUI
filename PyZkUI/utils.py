@@ -35,6 +35,7 @@ def check_zk_host(host, timeout=1):
         zk.start(timeout=timeout)
         logger.info('Connect to {}'.format(host))
         zk.stop()
+        zk.close()
     except KazooTimeoutError:
         logger.error('Failed to connect {}'.format(host))
         return False
@@ -68,6 +69,8 @@ def get_zk_node(host, path='/'):
         children = ['/' + c for c in children]
     else:
         children = [(path + '/' + c) for c in children]
+    zk.stop()
+    zk.close()
     return node, children
 
 
@@ -103,4 +106,5 @@ def get_zk_nodes(host):
     data = _recursive('/')['nodes']
     logger.critical('using {:.2f}s'.format(time.time()-_s))
     zk.stop()
+    zk.close()
     return data

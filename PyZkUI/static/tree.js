@@ -1,4 +1,5 @@
 let currentPageHost = $("#host").text();
+let deepPathICON = "->";
 
 function setPathText(path){
     if (path==="/"){
@@ -26,7 +27,7 @@ function changePath(path){
 }
 
 function changeActive(fullPath){
-    let target = fullPath.split('/').pop() + '+';
+    let target = fullPath.split('/').pop() + deepPathICON;
     $("ul.list-group").children().each(function(){
         if ($(this).text() === target){
             $(this).css('background-color', '#dbffa8')
@@ -43,11 +44,15 @@ function showData(fullPath){
     }).done(function(data){
         let html = "";
         $.each(data[0], function(k, v){
-            let row = '<tr><th scope="row">' + k + '</th><td>' + v + '</td></tr>'
-            html += row
+            if (k!="data"){
+                let row = '<tr><th scope="row">' + k + '</th><td>' + v + '</td></tr>';
+                html += row;
+            } else {
+                 $("#nodeData").val(v);
+            }
         });
         html = '<table class="table"><thead><tr><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>' + html + '</tbody></table>'
-        $("#nodeData").html(html)
+        $("#nodeInfo").html(html)
         changeActive(fullPath);
     });
 }
@@ -60,8 +65,8 @@ function loadNodes(fullPath){
         let html = '<ul class="list-group">';
         $.each(data[1], function(k, v){
             html += '<li id="' + v + '" class="list-group-item d-flex justify-content-between align-items-center" onclick="showData(\'' + v + '\')">'
-            html += '<a>' + v.split('/').pop() + '</a>';
-            html += '<a href="#" onclick ="setPathText(\'' + v + '\');loadNodes(\'' + v + '\')" class="badge badge-secondary">+</a>'
+            html += '<a class="text-break">' + v.split('/').pop() + '</a>';
+            html += '<a href="#" onclick ="setPathText(\'' + v + '\');loadNodes(\'' + v + '\')" class="badge badge-secondary">' + deepPathICON + '</a>'
             html += '</li>';
         });
         html += '</ul>';
