@@ -1,4 +1,5 @@
 let currentPageHost = $("#host").text();
+let deepPathICON = "+";
 
 function setPathText(path){
     if (path==="/"){
@@ -20,13 +21,18 @@ function setPathText(path){
 }
 
 function changePath(path){
-    console.log(path);
     setPathText(path);
     loadNodes(path);
 }
 
+function defaultActive(){
+    console.log($("ul.list-group").children(":first").text());
+    $("ul.list-group").children(":first").css('background-color', '#dbffa8');
+}
+
+
 function changeActive(fullPath){
-    let target = fullPath.split('/').pop() + '+';
+    let target = fullPath.split('/').pop() + deepPathICON;
     $("ul.list-group").children().each(function(){
         if ($(this).text() === target){
             $(this).css('background-color', '#dbffa8')
@@ -43,11 +49,15 @@ function showData(fullPath){
     }).done(function(data){
         let html = "";
         $.each(data[0], function(k, v){
-            let row = '<tr><th scope="row">' + k + '</th><td>' + v + '</td></tr>'
-            html += row
+            if (k!="data"){
+                let row = '<tr><th scope="row">' + k + '</th><td>' + v + '</td></tr>';
+                html += row;
+            } else {
+                 $("#nodeData").val(v);
+            }
         });
-        html = '<table class="table"><thead><tr><th scope="col">Name</th><th scope="col">Value</th></tr></thead><tbody>' + html + '</tbody></table>'
-        $("#nodeData").html(html)
+        html = '<table class="table"><tbody>' + html + '</tbody></table>'
+        $("#nodeInfo").html(html)
         changeActive(fullPath);
     });
 }
@@ -57,19 +67,21 @@ function loadNodes(fullPath){
         url: "/node",
         data: {h: currentPageHost, p: fullPath}
     }).done(function(data){
+        let firstNode = undefined;
         let html = '<ul class="list-group">';
         $.each(data[1], function(k, v){
+            if (typeof(firstNode) == "undefined") { firstNode=v; }
             html += '<li id="' + v + '" class="list-group-item d-flex justify-content-between align-items-center" onclick="showData(\'' + v + '\')">'
-            html += '<a>' + v.split('/').pop() + '</a>';
-            html += '<a href="#" onclick ="setPathText(\'' + v + '\');loadNodes(\'' + v + '\')" class="badge badge-secondary">+</a>'
+            html += '<a class="text-break">' + v.split('/').pop() + '</a>';
+            html += '<a href="#" onclick ="setPathText(\'' + v + '\');loadNodes(\'' + v + '\')" class="badge badge-success">' + deepPathICON + '</a>'
             html += '</li>';
         });
         html += '</ul>';
         $("#nodeList").html(html);
+        if (typeof(firstNode) != "undefined"){ showData(firstNode); }
     })
 }
 
 $(document).ready(function(){
-    setPathText('/');
-    loadNodes('/');
+    changePath('/');
 });
