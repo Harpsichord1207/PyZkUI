@@ -35,7 +35,7 @@
 <script>
 
 let addBtn = '<button id="addBtn" type="button" class="btn btn-outline-info btn-sm" style="margin-left: 5px" data-toggle="modal" data-target="#addHostModal">+</button>'
-let loadSpin = '<div id="loadSpin" class="spinner-border spinner-border-sm text-secondary" role="status"><span class="sr-only">Loading...</span></div>'
+let spinBtn = '<button id="spinBtn" class="btn btn-outline-info btn-sm" type="button" disabled><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span class="sr-only">Loading...</span></button>'
 
 function openNodePage(hostId){
     window.location.href = "/zk?id="+hostId;
@@ -77,13 +77,13 @@ function reloadHostTable(){
 <!--TODO: RESTAPI-->
 function deleteHost(hostId){
     $("#addBtn").remove();
-    $("#titleAndButtonArea").append(loadSpin);
+    $("#titleAndButtonArea").append(spinBtn);
     $.ajax({
         url: "/delete_host",
         type: "get",
         data: {id: hostId}
     }).done(function(data){
-        $("#loadSpin").remove();
+        $("#spinBtn").remove();
         $("#titleAndButtonArea").append(addBtn);
         if (data.status == 'failed') {
             showAlert('Failed to delete hostId=' + hostId + '.')
@@ -100,13 +100,13 @@ $(document).ready(function(){
     $("#saveBtn").click(function(){
         let host = $("#inputHost").val() + ":" + $("#inputPort").val();
         $("#addBtn").remove();
-        $("#titleAndButtonArea").append(loadSpin)
+        $("#titleAndButtonArea").append(spinBtn)
         $.ajax({
             url: "/add_host",
             type: "get",
             data: {host: host}
         }).done(function(data){
-            $("#loadSpin").remove();
+            $("#spinBtn").remove();
             $("#titleAndButtonArea").append(addBtn)
             if (data.status == 'success') {
                 $("tbody").append(generateRow(data));

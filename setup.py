@@ -5,7 +5,7 @@ read_me = pathlib.Path(__file__).parent.joinpath('README.md').read_text()
 
 setup_args = {
     'name': 'PyZkUI',
-    'version': '1.1.0',
+    'version': '1.1.1',
     'description': 'A Python Zookeeper UI.',
     'long_description': read_me,
     'long_description_content_type': 'text/markdown',
