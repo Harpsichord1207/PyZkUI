@@ -50,7 +50,10 @@ def zk():
     host_id = request.args.get('id')
     if host_id is None:
         return render_template('tree.html', host='Null')
-    return render_template('tree.html', host=HostList.data[int(host_id)-1]['host'])
+    try:
+        return render_template('tree.html', host=HostList.data[int(host_id)-1]['host'])
+    except IndexError:
+        return redirect('/')
 
 
 @app.route('/tree')

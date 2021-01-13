@@ -1,5 +1,15 @@
 let currentPageHost = $("#host").text();
 let deepPathICON = "+";
+let activeColor = "#dbffa8";
+
+$(document).ready(function(){
+    changePath('/');
+});
+
+function changePath(path){
+    setPathText(path);
+    loadNodesAndActiveFirstNode(path);
+}
 
 function setPathText(path){
     if (path==="/"){
@@ -20,29 +30,37 @@ function setPathText(path){
     }
 }
 
-function changePath(path){
-    setPathText(path);
-    loadNodes(path);
+function loadNodesAndActiveFirstNode(fullPath){
+    $.ajax({
+        url: "/node",
+        data: {h: currentPageHost, p: fullPath}
+    }).done(function(data){
+        let html = '<ul class="list-group">';
+        let firstNodeId = undefined;
+        $.each(data[1], function(k, v){
+            if (typeof(firstNodeId) === "undefined"){firstNodeId=v};
+            html += '<li id="' + v + '" class="list-group-item d-flex justify-content-between align-items-center" onclick="changeActive(event)">'
+            html += '<a class="text-break">' + v.split('/').pop() + '</a>';
+            html += '<a href="#" onclick ="changePath(\'' + v + '\')" class="badge badge-success">' + deepPathICON + '</a>'
+            html += '</li>';
+        });
+        html += '</ul>';
+        $("#nodeList").html(html);
+        if (typeof(firstNodeId) != "undefined"){
+            $("#"+$.escapeSelector(firstNodeId)).css('background-color', activeColor);
+            loadData(firstNodeId);
+        };
+    })
 }
 
-function defaultActive(){
-    console.log($("ul.list-group").children(":first").text());
-    $("ul.list-group").children(":first").css('background-color', '#dbffa8');
+function changeActive(event){
+    if ($(event.target).text() === deepPathICON){return}
+    $("ul.list-group li").css('background-color', "");
+    $(event.currentTarget).css('background-color', activeColor);
+    loadData($(event.currentTarget).attr("id"));
 }
 
-
-function changeActive(fullPath){
-    let target = fullPath.split('/').pop() + deepPathICON;
-    $("ul.list-group").children().each(function(){
-        if ($(this).text() === target){
-            $(this).css('background-color', '#dbffa8')
-        } else {
-            $(this).css('background-color', '')
-        }
-    });
-}
-
-function showData(fullPath){
+function loadData(fullPath){
     $.ajax({
         url: "/node",
         data: {h: currentPageHost, p: fullPath}
@@ -58,30 +76,5 @@ function showData(fullPath){
         });
         html = '<table class="table"><tbody>' + html + '</tbody></table>'
         $("#nodeInfo").html(html)
-        changeActive(fullPath);
     });
 }
-
-function loadNodes(fullPath){
-    $.ajax({
-        url: "/node",
-        data: {h: currentPageHost, p: fullPath}
-    }).done(function(data){
-        let firstNode = undefined;
-        let html = '<ul class="list-group">';
-        $.each(data[1], function(k, v){
-            if (typeof(firstNode) == "undefined") { firstNode=v; }
-            html += '<li id="' + v + '" class="list-group-item d-flex justify-content-between align-items-center" onclick="showData(\'' + v + '\')">'
-            html += '<a class="text-break">' + v.split('/').pop() + '</a>';
-            html += '<a href="#" onclick ="setPathText(\'' + v + '\');loadNodes(\'' + v + '\')" class="badge badge-success">' + deepPathICON + '</a>'
-            html += '</li>';
-        });
-        html += '</ul>';
-        $("#nodeList").html(html);
-        if (typeof(firstNode) != "undefined"){ showData(firstNode); }
-    })
-}
-
-$(document).ready(function(){
-    changePath('/');
-});
