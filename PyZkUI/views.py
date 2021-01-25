@@ -1,7 +1,9 @@
 import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
-from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host, HostList
+from models import ZK
+from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host
+
 
 app = Flask(__name__)
 
@@ -22,26 +24,27 @@ def favicon():
 @app.route('/add_host')
 def add_host():
     host = str(request.args.get('host')).strip().lower()
+    # TODO: empty host
     if not check_zk_host(host):
-        return jsonify({'status': 'failed'})
-    data = HostList.add(host)
-    return jsonify(**data, **{'status': 'success'})
+        return jsonify({'status': 'failed', 'message': '<strong>Failed!</strong> Can not connect to <i>{}</i>.'.format(host)})
+    zk_obj = ZK(host=host)
+    resp = zk_obj.save()
+    # if resp['status'] == 'failed':
+    #     resp['message'] = '<strong>Failed!</strong> Host <i>{}</i> already exists.'.format(host)
+    return jsonify(resp)
 
 
 @app.route('/load_hosts')
 def load_hosts():
-    return jsonify(HostList.export())
+    return jsonify(ZK.export())
 
 
 @app.route('/delete_host')
 def delete_host():
     host_id = request.args.get('id')
     if host_id is not None:
-        try:
-            HostList.data.pop(int(host_id)-1)
-            return jsonify({'status': 'success'})
-        except IndexError:
-            pass
+        ZK.delete(zk_id=host_id)
+        return jsonify({'status': 'success'})
     return jsonify({'status': 'failed'})
 
 
@@ -49,11 +52,11 @@ def delete_host():
 def zk():
     host_id = request.args.get('id')
     if host_id is None:
-        return render_template('tree.html', host='Null')
-    try:
-        return render_template('tree.html', host=HostList.data[int(host_id)-1]['host'])
-    except IndexError:
         return redirect('/')
+    zk_obj = ZK.get_by_id(host_id)
+    if zk_obj:
+        return render_template('tree.html', host=zk_obj.host)
+    return redirect('/')
 
 
 @app.route('/tree')

@@ -10,25 +10,6 @@ logger = logging.getLogger('waitress')
 logger.setLevel(logging.INFO)
 
 
-class HostList:
-
-    data = []
-
-    @classmethod
-    def add(cls, host):
-        _id = len(cls.data) + 1
-        host_obj = {
-            'time': str(datetime.datetime.now())[:22],
-            'host': host
-        }
-        cls.data.append(host_obj)
-        return {**host_obj, 'id': _id}
-
-    @classmethod
-    def export(cls):
-        return [{**ele, 'id': i+1} for i, ele in enumerate(cls.data)]
-
-
 def check_zk_host(host, timeout=1):
     zk = KazooClient(host)
     try:
@@ -48,6 +29,8 @@ def get_zk_node(host, path='/'):
         zk.start(timeout=5)
     except KazooTimeoutError:
         logger.error('Failed to connect {}'.format(host))
+        zk.stop()
+        zk.close()
         return
     data, stat = zk.get(path)
     node = {

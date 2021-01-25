@@ -17,7 +17,7 @@ function generateRow(hostRow){
     let id = hostRow.id;
     let gBtn = '<button type="button" class="btn btn-outline-success btn-sm" onclick="openNodePage(' + id + ')">√</button>';
     let dBtn = '<button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteHost(' + id + ')">-</button>';
-    let row = '<tr><th scope="row">' + id + '</th><td>' + hostRow.host + '</td>';
+    let row = '<tr><td>' + hostRow.host + '</td>';
     row += '<td>' + hostRow.time + '</td><td>';
     row += gBtn;
     row += dBtn;
@@ -50,7 +50,7 @@ function deleteHost(hostId){
         $("#spinBtn").remove();
         $("#titleAndButtonArea").append(addBtn);
         if (data.status == 'failed') {
-            showAlert('Failed to delete hostId=' + hostId + '.')
+            showAlert(data.message)
         }
         reloadHostTable();
     })
@@ -75,8 +75,7 @@ $(document).ready(function(){
             if (data.status == 'success') {
                 $("tbody").append(generateRow(data));
             } else {
-                let message = '<strong>Connect Failed!</strong> Please check the host <i>' + host + '.</i>';
-                showAlert(message);
+                showAlert(data.message);
             }
         });
     });
