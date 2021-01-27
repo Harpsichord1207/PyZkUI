@@ -1,13 +1,47 @@
-import datetime
 import logging
-import time
 
 from kazoo.client import KazooClient
 from kazoo.handlers.threading import KazooTimeoutError
+from kazoo.exceptions import KazooException
 
 
 logger = logging.getLogger('waitress')
 logger.setLevel(logging.INFO)
+
+
+def delete_zk_node(host, path):
+    zk = KazooClient(hosts=host)
+    try:
+        zk.start(timeout=5)
+        zk.delete(path, recursive=True)
+        return {'status': 'success'}
+    except KazooTimeoutError:
+        logger.error('Failed to connect {}'.format(host))
+        return {'status': 'failed', 'message': 'Failed to connect host due to TimeOut.'}
+    except KazooException as e:
+        logger.error(repr(e))
+        return {'status': 'failed', 'message': 'Failed to create node due to {}'.format(repr(e))}
+    finally:
+        zk.stop()
+        zk.close()
+
+
+def add_zk_node(host, path, data):
+    zk = KazooClient(hosts=host)
+    try:
+        zk.start(timeout=5)
+        zk.create(path, bytes(data, encoding='utf-8'))
+        return {'status': 'success'}
+    except KazooTimeoutError:
+        logger.error('Failed to connect {}'.format(host))
+        return {'status': 'failed', 'message': 'Failed to connect host due to TimeOut.'}
+    except KazooException as e:
+        # TODO: update node if exists
+        logger.error(repr(e))
+        return {'status': 'failed', 'message': 'Failed to create node due to {}'.format(repr(e))}
+    finally:
+        zk.stop()
+        zk.close()
 
 
 def check_zk_host(host, timeout=1):
@@ -55,39 +89,3 @@ def get_zk_node(host, path='/'):
     zk.stop()
     zk.close()
     return node, children
-
-
-def get_zk_nodes(host):
-    zk = KazooClient(hosts=host)
-    try:
-        zk.start(timeout=5)
-    except KazooTimeoutError:
-        logger.error('Failed to connect {}'.format(host))
-        return
-
-    def _recursive(_path):
-        logger.info(_path)
-        _children = zk.get_children(_path)
-        if _path != '/':
-            _children_full_path = [(_path + '/' + _c) for _c in _children]
-        else:
-            _children_full_path = [('/' + _c) for _c in _children]
-        _data, _stat = zk.get(_path)
-
-        _children_nodes = [_recursive(_cfp) for _cfp in _children_full_path]
-        _res = {
-            'text': _path
-        }
-        if _children_nodes:
-            _res['nodes'] = _children_nodes
-            _res['icon'] = 'fa fa-folder-open'
-        else:
-            _res['icon'] = 'fa fa-file-code-o'
-        return _res
-
-    _s = time.time()
-    data = _recursive('/')['nodes']
-    logger.critical('using {:.2f}s'.format(time.time()-_s))
-    zk.stop()
-    zk.close()
-    return data

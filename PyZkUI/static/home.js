@@ -62,7 +62,7 @@ $(document).ready(function(){
     reloadHostTable();
 
     $("#saveBtn").click(function(){
-        let host = $("#inputHost").val() + ":" + $("#inputPort").val();
+        let host = $("#inputDomain").val() + ":" + $("#inputPort").val();
         $("#addBtn").remove();
         $("#titleAndButtonArea").append(spinBtn)
         $.ajax({
@@ -71,12 +71,12 @@ $(document).ready(function(){
             data: {host: host}
         }).done(function(data){
             $("#spinBtn").remove();
-            $("#titleAndButtonArea").append(addBtn)
+            $("#titleAndButtonArea").append(addBtn);
             if (data.status == 'success') {
                 $("tbody").append(generateRow(data));
             } else {
                 showAlert(data.message);
-            }
+            };
         });
     });
 });

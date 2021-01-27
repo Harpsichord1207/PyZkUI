@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
 from models import ZK
-from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host
+from PyZkUI.utils import get_zk_node, check_zk_host, add_zk_node, delete_zk_node
 
 
 app = Flask(__name__)
@@ -24,13 +24,13 @@ def favicon():
 @app.route('/add_host')
 def add_host():
     host = str(request.args.get('host')).strip().lower()
-    # TODO: empty host
+    h, p = host.split(':')
+    if not (h and p):
+        return jsonify({'status': 'failed', 'message': '<strong>Failed!</strong> Invalid host or port.'})
     if not check_zk_host(host):
         return jsonify({'status': 'failed', 'message': '<strong>Failed!</strong> Can not connect to <i>{}</i>.'.format(host)})
     zk_obj = ZK(host=host)
     resp = zk_obj.save()
-    # if resp['status'] == 'failed':
-    #     resp['message'] = '<strong>Failed!</strong> Host <i>{}</i> already exists.'.format(host)
     return jsonify(resp)
 
 
@@ -59,22 +59,25 @@ def zk():
     return redirect('/')
 
 
-@app.route('/tree')
-def tree():
-    host = request.args.get('h')
-    data = get_zk_nodes(host)
-    if data is None:
-        return jsonify({'status': 'failed', 'message': 'Connection Failed.'})
-    else:
-        return jsonify({'status': 'success', 'data': data})
-
-
-@app.route('/node')
+@app.route('/node', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def node():
-    host = request.args.get('h')
-    path = request.args.get('p')
-    if host and path:
-        data = get_zk_node(host, path=path)
-        if data is not None:
-            return jsonify(data)
-    return jsonify({'status': 'failed', 'message': 'Get node info failed.'})
+    if request.method == 'GET':
+        host = request.args.get('h')
+        path = request.args.get('p')
+        if host and path:
+            data = get_zk_node(host, path=path)
+            if data is not None:
+                return jsonify(data)
+        return jsonify({'status': 'failed', 'message': 'Get node info failed.'})
+    elif request.method == 'POST':
+        host = request.form.get('h')
+        path = request.form.get('p')
+        data = request.form.get('d')
+        resp = add_zk_node(host, path, data)
+        return jsonify(resp)
+    elif request.method == 'DELETE':
+        host = request.form.get('h')
+        path = request.form.get('p')
+        return jsonify(delete_zk_node(host, path))
+
+

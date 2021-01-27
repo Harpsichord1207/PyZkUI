@@ -4,7 +4,40 @@ let activeColor = "#dbffa8";
 
 $(document).ready(function(){
     changePath('/');
+    $("#saveBtn").click(function(){
+         let currentPath = $("#currentPath").val();
+         let newNode = $("#nodeName").val();
+         let newNodeFullPath = currentPath + "/" + newNode;
+         let newNodeData = $("#newNodeData").val();
+         $.ajax({
+             url: "/node",
+             type: "post",
+             data: {h: currentPageHost, p: newNodeFullPath, d: newNodeData}
+         }).done(function(data){
+            if (data.status == 'success') {
+                alert('refresh current page and path!')
+            } else {
+                alert(data.message);
+                showAlert(data.message);
+            };
+         });
+    });
+    $("#deleteBtn").click(function(){
+         $.ajax({
+             url: "/node",
+             type: "delete",
+             data: {h: currentPageHost, p: $("#deletePath").val()}
+         }).done(function(data){
+            if (data.status == 'success') {
+                alert('refresh current page and path!')
+            } else {
+                alert('delete failed, do something!')
+            }
+         })
+    });
 });
+
+
 
 function changePath(path){
     setPathText(path);
@@ -12,6 +45,7 @@ function changePath(path){
 }
 
 function setPathText(path){
+    $("#currentPath").val(path);
     if (path==="/"){
         $("#path").html('<button type="button" class="btn btn-sm btn-outline-secondary" onclick="changePath(\'' + path + '\')">/</button>');
     } else {
@@ -47,6 +81,7 @@ function loadNodesAndActiveFirstNode(fullPath){
         html += '</ul>';
         $("#nodeList").html(html);
         if (typeof(firstNodeId) != "undefined"){
+            $("#deletePath").val(firstNodeId);
             $("#"+$.escapeSelector(firstNodeId)).css('background-color', activeColor);
             loadData(firstNodeId);
         };
@@ -57,6 +92,7 @@ function changeActive(event){
     if ($(event.target).text() === deepPathICON){return}
     $("ul.list-group li").css('background-color', "");
     $(event.currentTarget).css('background-color', activeColor);
+    $("#deletePath").val($(event.currentTarget).attr("id"));
     loadData($(event.currentTarget).attr("id"));
 }
 
