@@ -9,64 +9,8 @@ logger = logging.getLogger('waitress')
 logger.setLevel(logging.INFO)
 
 
-def delete_zk_node(host, path):
-    zk = KazooClient(hosts=host)
-    try:
-        zk.start(timeout=5)
-        zk.delete(path, recursive=True)
-        return {'status': 'success'}
-    except KazooTimeoutError:
-        logger.error('Failed to connect {}'.format(host))
-        return {'status': 'failed', 'message': 'Failed to connect host due to TimeOut.'}
-    except KazooException as e:
-        logger.error(repr(e))
-        return {'status': 'failed', 'message': 'Failed to create node due to {}'.format(repr(e))}
-    finally:
-        zk.stop()
-        zk.close()
-
-
-def add_zk_node(host, path, data):
-    zk = KazooClient(hosts=host)
-    try:
-        zk.start(timeout=5)
-        zk.create(path, bytes(data, encoding='utf-8'))
-        return {'status': 'success'}
-    except KazooTimeoutError:
-        logger.error('Failed to connect {}'.format(host))
-        return {'status': 'failed', 'message': 'Failed to connect host due to TimeOut.'}
-    except KazooException as e:
-        # TODO: update node if exists
-        logger.error(repr(e))
-        return {'status': 'failed', 'message': 'Failed to create node due to {}'.format(repr(e))}
-    finally:
-        zk.stop()
-        zk.close()
-
-
-def check_zk_host(host, timeout=1):
-    zk = KazooClient(host)
-    try:
-        zk.start(timeout=timeout)
-        logger.info('Connect to {}'.format(host))
-        zk.stop()
-        zk.close()
-    except KazooTimeoutError:
-        logger.error('Failed to connect {}'.format(host))
-        return False
-    return True
-
-
-def get_zk_node(host, path='/'):
-    zk = KazooClient(hosts=host)
-    try:
-        zk.start(timeout=5)
-    except KazooTimeoutError:
-        logger.error('Failed to connect {}'.format(host))
-        zk.stop()
-        zk.close()
-        return
-    data, stat = zk.get(path)
+def _get(zk_client, path):
+    data, stat = zk_client.get(path)
     node = {
         'data': str(data)[1:].strip("'"),
         'czxid': stat.czxid,
@@ -81,11 +25,50 @@ def get_zk_node(host, path='/'):
         'numChildren': stat.numChildren,
         'pzxid': stat.pzxid
     }
-    children = zk.get_children(path)
+    children = zk_client.get_children(path)
     if path == '/':
         children = ['/' + c for c in children]
     else:
         children = [(path + '/' + c) for c in children]
-    zk.stop()
-    zk.close()
-    return node, children
+    return {'node': node, 'children': children}
+
+
+def _delete(zk_client, path):
+    zk_client.delete(path, recursive=True)
+    return {}
+
+
+def _add(zk_client, path, data):
+    zk_client.create(path, bytes(data, encoding='utf-8'))
+    return {}
+
+
+def zk_node_ops(host, method, **kwargs):
+    zk_client = KazooClient(hosts=host)
+    method = str(method).lower()
+    res = {'status': 'success'}
+    try:
+        zk_client.start(timeout=kwargs.get('timeout') or 5)
+        if method == 'get':
+            data = _get(zk_client, kwargs.get('path'))
+            res.update(**data)
+        elif method == 'delete':
+            _delete(zk_client, kwargs.get('path'))
+        elif method == 'add':
+            _add(zk_client, kwargs.get('path'), kwargs.get('data'))
+        elif method == 'check':
+            pass
+        else:
+            raise ValueError('Unsupported ZK Method [{}]'.format(method.upper()))
+    except KazooTimeoutError:
+        logger.error('Failed to connect {}'.format(host))
+        res = {'status': 'failed', 'message': 'Failed to connect host due to TimeOut.'}
+    except KazooException as e:
+        res = {'status': 'failed', 'message': 'Failed to {} node due to KazooException({}).'.format(method, repr(e))}
+    finally:
+        zk_client.stop()
+        zk_client.close()
+        return res
+
+
+

@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
 from models import ZK
-from PyZkUI.utils import get_zk_node, check_zk_host, add_zk_node, delete_zk_node
+from PyZkUI.utils import zk_node_ops
 
 
 app = Flask(__name__)
@@ -27,8 +27,10 @@ def add_host():
     h, p = host.split(':')
     if not (h and p):
         return jsonify({'status': 'failed', 'message': '<strong>Failed!</strong> Invalid host or port.'})
-    if not check_zk_host(host):
-        return jsonify({'status': 'failed', 'message': '<strong>Failed!</strong> Can not connect to <i>{}</i>.'.format(host)})
+    check_res = zk_node_ops(host, 'check')
+    if check_res['status'] == 'failed':
+        check_res['message'] = '<strong>Failed!</strong> Can not connect to <i>{}</i>.'.format(host)
+        return jsonify(check_res)
     zk_obj = ZK(host=host)
     resp = zk_obj.save()
     return jsonify(resp)
@@ -61,23 +63,20 @@ def zk():
 
 @app.route('/node', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def node():
+    # TODO: request.method related to zk operations
     if request.method == 'GET':
         host = request.args.get('h')
         path = request.args.get('p')
-        if host and path:
-            data = get_zk_node(host, path=path)
-            if data is not None:
-                return jsonify(data)
-        return jsonify({'status': 'failed', 'message': 'Get node info failed.'})
+        resp = zk_node_ops(host, 'get', path=path)
+        return jsonify(resp)
     elif request.method == 'POST':
         host = request.form.get('h')
         path = request.form.get('p')
         data = request.form.get('d')
-        resp = add_zk_node(host, path, data)
+        resp = zk_node_ops(host, 'add', path=path, data=data)
         return jsonify(resp)
     elif request.method == 'DELETE':
         host = request.form.get('h')
         path = request.form.get('p')
-        return jsonify(delete_zk_node(host, path))
-
-
+        resp = zk_node_ops(host, 'delete', path=path)
+        return jsonify(resp)

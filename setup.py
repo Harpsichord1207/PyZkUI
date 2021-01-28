@@ -5,7 +5,7 @@ read_me = pathlib.Path(__file__).parent.joinpath('README.md').read_text()
 
 setup_args = {
     'name': 'PyZkUI',
-    'version': '1.1.2',
+    'version': '1.2.0',
     'description': 'A Python Zookeeper UI.',
     'long_description': read_me,
     'long_description_content_type': 'text/markdown',
@@ -14,7 +14,7 @@ setup_args = {
     'license': 'MPL 2.0',
     'packages': find_packages(),
     'url': 'https://github.com/Harpsichord1207/PyZkUI',
-    'install_requires': ['flask', 'waitress', 'kazoo'],
+    'install_requires': ['flask', 'waitress', 'kazoo', 'Flask-SQLAlchemy'],
     'classifiers': [
         'Programming Language :: Python :: 3.8',
     ],
