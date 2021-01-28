@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
-from models import ZK
+from PyZkUI.models import ZK
 from PyZkUI.utils import zk_node_ops
 
 

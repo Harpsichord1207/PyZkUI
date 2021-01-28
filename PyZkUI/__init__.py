@@ -3,11 +3,11 @@ import waitress
 
 
 def init_app():
-    from config import FlaskConfig
+    from PyZkUI.config import FlaskConfig
     from PyZkUI.views import app
 
     # init db
-    from models import db
+    from PyZkUI.models import db
     app.config.from_object(FlaskConfig)
     db.init_app(app)
     db.create_all(app=app)
