@@ -1,0 +1,28 @@
+<div class="modal fade" id="createNodeModal" tabindex="-1" aria-labelledby="createNodeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createNodeModalLabel">Create Node</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <label for="currentPath">Current Path</label>
+        <input class="form-control" type="text" id="currentPath" placeholder="/" readonly>
+
+        <label for="nodeName">Node Name</label>
+        <input class="form-control" type="text" id="nodeName">
+
+        <label for="newNodeData">Node Data</label>
+        <input class="form-control" type="text" id="newNodeData">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

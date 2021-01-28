@@ -12,6 +12,7 @@
         <hr>
         <h5>Host: <i><span id="host">{{ host }}</span></i></h5>
         <h5>Path: <i><span id="path"></span></i></h5>
+        <div id="alertMessage"></div>
         <hr>
         <div class="row">
             <div class="col-4" id="nodeList"></div>
@@ -24,6 +25,8 @@
             </div>
         </div>
 
+        {% include '_modal_1.html' %}
+        {% include '_modal_2.html' %}
     </div>
 </body>
 <script src="/static/jquery-3.5.1.min.js"></script>

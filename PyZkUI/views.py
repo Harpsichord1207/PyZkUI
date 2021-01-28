@@ -1,7 +1,9 @@
 import os
 
 from flask import Flask, render_template, send_from_directory, request, jsonify, redirect
-from PyZkUI.utils import get_zk_node, get_zk_nodes, check_zk_host, HostList
+from PyZkUI.models import ZK
+from PyZkUI.utils import zk_node_ops
+
 
 app = Flask(__name__)
 
@@ -22,26 +24,29 @@ def favicon():
 @app.route('/add_host')
 def add_host():
     host = str(request.args.get('host')).strip().lower()
-    if not check_zk_host(host):
-        return jsonify({'status': 'failed'})
-    data = HostList.add(host)
-    return jsonify(**data, **{'status': 'success'})
+    h, p = host.split(':')
+    if not (h and p):
+        return jsonify({'status': 'failed', 'message': '<strong>Failed!</strong> Invalid host or port.'})
+    check_res = zk_node_ops(host, 'check')
+    if check_res['status'] == 'failed':
+        check_res['message'] = '<strong>Failed!</strong> Can not connect to <i>{}</i>.'.format(host)
+        return jsonify(check_res)
+    zk_obj = ZK(host=host)
+    resp = zk_obj.save()
+    return jsonify(resp)
 
 
 @app.route('/load_hosts')
 def load_hosts():
-    return jsonify(HostList.export())
+    return jsonify(ZK.export())
 
 
 @app.route('/delete_host')
 def delete_host():
     host_id = request.args.get('id')
     if host_id is not None:
-        try:
-            HostList.data.pop(int(host_id)-1)
-            return jsonify({'status': 'success'})
-        except IndexError:
-            pass
+        ZK.delete(zk_id=host_id)
+        return jsonify({'status': 'success'})
     return jsonify({'status': 'failed'})
 
 
@@ -49,29 +54,29 @@ def delete_host():
 def zk():
     host_id = request.args.get('id')
     if host_id is None:
-        return render_template('tree.html', host='Null')
-    try:
-        return render_template('tree.html', host=HostList.data[int(host_id)-1]['host'])
-    except IndexError:
         return redirect('/')
+    zk_obj = ZK.get_by_id(host_id)
+    if zk_obj:
+        return render_template('tree.html', host=zk_obj.host)
+    return redirect('/')
 
 
-@app.route('/tree')
-def tree():
-    host = request.args.get('h')
-    data = get_zk_nodes(host)
-    if data is None:
-        return jsonify({'status': 'failed', 'message': 'Connection Failed.'})
-    else:
-        return jsonify({'status': 'success', 'data': data})
-
-
-@app.route('/node')
+@app.route('/node', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def node():
-    host = request.args.get('h')
-    path = request.args.get('p')
-    if host and path:
-        data = get_zk_node(host, path=path)
-        if data is not None:
-            return jsonify(data)
-    return jsonify({'status': 'failed', 'message': 'Get node info failed.'})
+    # TODO: request.method related to zk operations
+    if request.method == 'GET':
+        host = request.args.get('h')
+        path = request.args.get('p')
+        resp = zk_node_ops(host, 'get', path=path)
+        return jsonify(resp)
+    elif request.method == 'POST':
+        host = request.form.get('h')
+        path = request.form.get('p')
+        data = request.form.get('d')
+        resp = zk_node_ops(host, 'add', path=path, data=data)
+        return jsonify(resp)
+    elif request.method == 'DELETE':
+        host = request.form.get('h')
+        path = request.form.get('p')
+        resp = zk_node_ops(host, 'delete', path=path)
+        return jsonify(resp)
