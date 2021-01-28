@@ -69,6 +69,3 @@ def zk_node_ops(host, method, **kwargs):
         zk_client.stop()
         zk_client.close()
         return res
-
-
-
