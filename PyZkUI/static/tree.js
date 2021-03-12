@@ -1,5 +1,5 @@
 let currentPageHost = $("#host").text();
-let deepPathICON = "+";
+let deepPathICON = ">";
 let activeColor = "#dbffa8";
 
 $(document).ready(function(){
@@ -34,6 +34,7 @@ $(document).ready(function(){
             }
          })
     });
+
 });
 
 
@@ -82,7 +83,7 @@ function loadNodesAndActiveFirstNode(fullPath){
                 if (typeof(firstNodeId) === "undefined"){firstNodeId=v};
                 html += '<li id="' + v + '" class="list-group-item d-flex justify-content-between align-items-center" onclick="changeActive(event)">'
                 html += '<a class="text-break">' + v.split('/').pop() + '</a>';
-                html += '<a href="#" onclick ="changePath(\'' + v + '\')" class="badge badge-success">' + deepPathICON + '</a>'
+                html += '<a href="#" onclick ="changePath(\'' + v + '\')" class="badge badge-primary">' + deepPathICON + '</a>'
                 html += '</li>';
             });
             html += '</ul>';

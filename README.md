@@ -1,6 +1,6 @@
 # PyZkUI
 
-A Simple Zookeeper UI tool.  
+**A Simple Zookeeper UI tool.**   
 Backend: Python/Flask/Kazoo/Waitress.  
 Frontend: Bootstrap/jQuery.
 
@@ -17,4 +17,3 @@ Frontend: Bootstrap/jQuery.
     - use `--port` to set port, default is `8088`
     - use `--debug` to active flask debug mode, default is `False`
     - use `--threads` to set threads num, default is `2`, can not be used in debug mode
-    
